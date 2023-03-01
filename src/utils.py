@@ -119,7 +119,7 @@ def load_checkpoint(checkpoint_path, model):
     """
     print(f"=> Loading checkpoint at {checkpoint_path}")
     checkpoint = torch.load(checkpoint_path)
-    model.load_state_dict(checkpoint["state_dict"])
+    model.load_state_dict(checkpoint)
     return checkpoint
 
 
