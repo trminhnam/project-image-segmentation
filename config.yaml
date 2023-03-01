@@ -12,5 +12,5 @@ save_every: 1
 train_image_dir: "data/images"
 train_mask_dir: "data/annotations/trimaps"
 
-model_load_path: "model/model_1.pth"
+model_load_path: "model/model_5.pth"
 model_save_path: "model/model.pth"

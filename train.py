@@ -97,7 +97,14 @@ if __name__ == "__main__":
             f"Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Test accuracy: {accuracy:.4f}, Test dice_score: {dice_score:.4f}"
         )
 
-        if config.get("save_every", -1) != -1 and (epoch + 1) % config["save_every"] == 0:
-            save_checkpoint(model.state_dict(), checkpoint_path=config["model_save_path"].split(".")[0] + f"_{epoch+1}.pth")
+        if (
+            config.get("save_every", -1) != -1
+            and (epoch + 1) % config["save_every"] == 0
+        ):
+            save_checkpoint(
+                model.state_dict(),
+                checkpoint_path=config["model_save_path"].split(".")[0]
+                + f"_{epoch+1}.pth",
+            )
 
         print()

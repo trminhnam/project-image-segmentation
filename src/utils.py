@@ -59,14 +59,13 @@ def get_increment_path(path, increment=1):
     """
     counter = 0
     new_path = path
-    while os.path.exists(new_path):   
+    while os.path.exists(new_path):
         counter += increment
         new_path = path.split(".")[0] + f"_{counter}" + "." + path.split(".")[1]
     return new_path
 
-def save_masks_and_preds_to_img(
-    masks, preds, folder="saved_images/"
-):
+
+def save_masks_and_preds_to_img(masks, preds, folder="saved_images/"):
     """Save batch of images, masks, and predictions to disk.
 
     Args:
@@ -82,19 +81,19 @@ def save_masks_and_preds_to_img(
     max_value = np.max(masks)
     masks = (masks / max_value * 255.0).astype(np.uint8)
     preds = (preds / max_value * 255.0).astype(np.uint8)
-    
+
     # concatenate mask and pred
     mask_pred = np.concatenate([masks, preds], axis=2)
 
     # concat all images in mask_pred to a long image along batch dimension
     mask_pred = np.concatenate(mask_pred, axis=0)
-    
+
     # save image
     os.makedirs(folder, exist_ok=True)
     save_path = os.path.join(folder, "mask_pred.png")
     save_path = get_increment_path(save_path)
     cv2.imwrite(save_path, mask_pred)
-    
+
 
 def save_checkpoint(state, checkpoint_path="my_checkpoint.pth.tar"):
     """Save model checkpoint.
@@ -193,7 +192,7 @@ def evaluate_fn(val_loader, model, criterion, device):
     losses = []
     accuracies = []
     dice_scores = []
-    
+
     visualization_idx = np.random.randint(0, len(val_loader))
 
     for batch_idx, (image, target) in enumerate(pbar):
@@ -206,7 +205,7 @@ def evaluate_fn(val_loader, model, criterion, device):
             with torch.cuda.amp.autocast():
                 output = model(image)
                 loss = criterion(output.view(-1, 3), target.view(-1))
-        
+
         # visualize some predictions
         if batch_idx == visualization_idx:
             save_masks_and_preds_to_img(target, output)
@@ -224,7 +223,6 @@ def evaluate_fn(val_loader, model, criterion, device):
         )
         losses.append(loss.detach().cpu().numpy())
 
-    
     loss = np.mean(losses)
     acc = np.mean(accuracies)
     dice_score = np.mean(dice_scores)
