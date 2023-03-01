@@ -1,0 +1,16 @@
+num_classes: 3
+lr: 0.001
+batch_size: 16
+epochs: 5
+num_workers: 2
+image_height: 160
+image_width: 240
+pin_memory: True
+load_model: True
+save_every: 1
+
+train_image_dir: "data/images"
+train_mask_dir: "data/annotations/trimaps"
+
+model_load_path: "model/model_1.pth"
+model_save_path: "model/model.pth"

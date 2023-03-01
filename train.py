@@ -18,8 +18,8 @@ from src.utils import (
     train_test_split_dataset,
 )
 
-config = None
-with open("train_config.yaml", "r") as f:
+config = {}
+with open("config.yaml", "r") as f:
     config = yaml.safe_load(f)
 os.makedirs(os.path.dirname(config["model_save_path"]), exist_ok=True)
 
@@ -89,15 +89,15 @@ if __name__ == "__main__":
     # train
     for epoch in range(config["epochs"]):
         print(f"Epoch: {epoch+1}/{config['epochs']}")
-        # train_loss = train_fn(train_loader, model, optimizer, criterion, scaler, device)
+        train_loss = train_fn(train_loader, model, optimizer, criterion, scaler, device)
         test_loss, accuracy, dice_score = evaluate_fn(
             test_loader, model, criterion, device
         )
-        # print(
-        #     f"Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Test accuracy: {accuracy:.4f}, Test dice_score: {dice_score:.4f}"
-        # )
+        print(
+            f"Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Test accuracy: {accuracy:.4f}, Test dice_score: {dice_score:.4f}"
+        )
 
         if config.get("save_every", -1) != -1 and (epoch + 1) % config["save_every"] == 0:
-            save_checkpoint(model, checkpoint_path=config["model_save_path"])
+            save_checkpoint(model.state_dict(), checkpoint_path=config["model_save_path"].split(".")[0] + f"_{epoch+1}.pth")
 
         print()
