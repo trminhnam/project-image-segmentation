@@ -44,6 +44,8 @@ class UNet(nn.Module):
 
         self.bottleneck = DoubleConvBlock(features[-1], features[-1] * 2)
         self.output_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
+        
+        self.apply(init_weights)
 
     def forward(self, x):
         skip_connections = []
@@ -78,6 +80,20 @@ class UNet(nn.Module):
             x = self.ups[idx + 1](x)  # double conv block
 
         return self.output_conv(x)
+    
+def init_weights(m):
+    if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight.data)
+        if m.bias is not None:
+            nn.init.constant_(m.bias.data, 0.0)
+    elif isinstance(m, nn.BatchNorm2d):
+        nn.init.constant_(m.weight.data, 1.0)
+        if m.bias is not None:
+            nn.init.constant_(m.bias.data, 0.0)
+    elif isinstance(m, nn.Linear):
+        nn.init.kaiming_normal_(m.weight.data)
+        if m.bias is not None:
+            nn.init.constant_(m.bias.data, 0.0)
 
 
 if __name__ == "__main__":
