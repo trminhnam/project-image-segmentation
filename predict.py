@@ -54,8 +54,10 @@ if __name__ == "__main__":
     image = np.array(Image.open(image_path))
     mask = predict(model, image, device)
     result = visualize(image, mask, num_classes=config.get("num_classes", 3), alpha=0.5)
-    
+
     save_dir = "results"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-    Image.fromarray(result.astype("uint8")).save(os.path.join(save_dir, os.path.basename(image_path)))
+    Image.fromarray(result.astype("uint8")).save(
+        os.path.join(save_dir, os.path.basename(image_path))
+    )

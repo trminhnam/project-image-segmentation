@@ -6,6 +6,8 @@ This repository contains a deep learning model for image segmentation using a UN
 
 The Oxford-IIIT Pet Dataset contains images of cats and dogs with corresponding ground truth segmentation masks. The dataset consists of 37 categories, with about 200 images for each category. The dataset can be downloaded from the [official website](https://www.robots.ox.ac.uk/~vgg/data/pets/).
 
+To view some samples inside the dataset, run the `data_visualization.py` script. The script will load the dataset and display a random sample of images and segmentation masks.
+
 Some examples of the dataset with segmentation masks are shown below.
 
 ![](./sample_images/data_visualization.png)

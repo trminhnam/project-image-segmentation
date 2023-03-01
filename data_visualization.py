@@ -26,6 +26,7 @@ def imagenet_denorm(x):
     """x: array-like with shape (..., H, W, C)"""
     return x * imagenet_std + imagenet_mean
 
+
 # plot 4 images with their masks side by side
 fig, ax = plt.subplots(2, 4, figsize=(20, 10))
 for i in range(4):
@@ -53,13 +54,13 @@ plt.show()
 #     plt.title("Image")
 #     plt.xticks([])
 #     plt.yticks([])
-    
+
 #     plt.subplot(1, 2, 2)
 #     plt.imshow(mask.numpy())
 #     plt.title("Mask")
 #     plt.xticks([])
 #     plt.yticks([])
-    
+
 #     plt.tight_layout()
 #     plt.savefig(f"sample_images/data_visualization_{i}.png")
 #     plt.show()
