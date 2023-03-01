@@ -2,7 +2,21 @@
 
 This repository contains a deep learning model for image segmentation using a UNet architecture on The Oxford-IIIT Pet Dataset. The model is trained to segment images of pets into foreground and background regions.
 
-## Dataset
+## Installation
+
+### Downloading the Dataset
+
+Follow this [link](https://www.robots.ox.ac.uk/~vgg/data/pets/) to download `images.tar.gz` and `annotations.tar.gz` from the Oxford-IIIT Pet Dataset. Extract the files into the `data/` folder. You can see the folder structure below in the [Folder Structure](#folder-structure) section.
+
+### Python Packages
+
+To install the required packages, run the following command:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Dataset Overview
 
 The Oxford-IIIT Pet Dataset contains images of cats and dogs with corresponding ground truth segmentation masks. The dataset consists of 37 categories, with about 200 images for each category. The dataset can be downloaded from the [official website](https://www.robots.ox.ac.uk/~vgg/data/pets/).
 
@@ -62,9 +76,12 @@ The model consists of an encoder and decoder with skip connections to retain spa
 
 The implementation of the model is based on the PyTorch implementation of the UNet architecture by Aladdin Persson [1].
 
-### Model Evaluation
+### Model Training and Evaluation
 
 The model is trained for `200` epochs with a batch size of `32` and an initial learning rate of `3e-4`.
+
+You can train the model by running the `train.py` script.
+The configuration file `config.yaml` contains the hyperparameters for the model training.
 
 ### Demo
 
