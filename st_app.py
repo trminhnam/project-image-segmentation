@@ -1,66 +1,71 @@
+import torch
 import streamlit as st
 import requests
 from io import BytesIO
 import numpy as np
 from PIL import Image
+from predict import predict, visualize
+from src.model import UNet
+from src.utils import load_checkpoint
+import yaml
 
-# import mrcnn.model as modellib
-# from mrcnn import visualize
+config = {}
+with open("config.yaml", "r") as f:
+    config = yaml.safe_load(f)
 
-# # Define configuration for Mask R-CNN model
-# class SegmentationConfig():
-#     NAME = "coco"
-#     GPU_COUNT = 1
-#     IMAGES_PER_GPU = 1
-#     NUM_CLASSES = 1 + 80  # COCO dataset has 80 classes + background
 
-# config = SegmentationConfig()
-# model = modellib.MaskRCNN(mode="inference", config=config, model_dir="./logs")
+@st.cache(allow_output_mutation=True)
+def load_model():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = UNet(in_channels=3, out_channels=config.get("num_classes", 3))
+    load_checkpoint(config["model_load_path"], model)
+    model = model.to(device)
+    return model, device
 
-# # Load pre-trained weights from COCO dataset
-# model.load_weights("./mask_rcnn_coco.h5", by_name=True)
-
-# # Define function to perform segmentation on input image
-# def segment_image(image):
-#     image_array = np.array(image)
-#     results = model.detect([image_array])
-#     r = results[0]
-#     mask = r['masks'][:,:,0]
-#     return mask
 
 def segment_image(image):
-    return image
+    global model, device
+    image = np.array(image)
+    mask = predict(model, image, device)
+    mask = visualize(image, mask, num_classes=config.get("num_classes", 3), alpha=0.5)
+    return mask
+
 
 # Define Streamlit app
-st.title('Image Segmentation App')
+st.title("Image Segmentation App")
+
+with st.spinner("Loading model into memory..."):
+    model, device = load_model()
 
 # Ask user for input image or link
-input_type = st.radio('Input type', ('Image file', 'Image URL'))
+input_type = st.radio("Input type", ("Image file", "Image URL"))
 
-if input_type == 'Image file':
-    uploaded_file = st.file_uploader('Choose an image file', type=['jpg', 'jpeg', 'png'])
+if input_type == "Image file":
+    uploaded_file = st.file_uploader(
+        "Choose an image file", type=["jpg", "jpeg", "png"]
+    )
     if uploaded_file is not None:
         try:
-            image = Image.open(uploaded_file)
-            st.image(image, caption='Input image')
+            image = Image.open(uploaded_file).convert("RGB")
+            st.image(image, caption="Input image")
         except Exception as e:
-            st.error('Error: {}'.format(e))
+            st.error("Error: {}".format(e))
             st.stop()
-        
+
         mask = segment_image(image)
-        st.image(mask, caption='Segmentation map')
-        
+        st.image(mask, caption="Segmentation map")
+
 
 else:
-    image_url = st.text_input('Enter the URL of an image')
-    if st.button('Segment'):
-        if image_url != '':
+    image_url = st.text_input("Enter the URL of an image")
+    if st.button("Segment"):
+        if image_url != "":
             response = requests.get(image_url)
-            image = Image.open(BytesIO(response.content))
-            st.image(image, caption='Input image')
-            
+            image = Image.open(BytesIO(response.content)).convert("RGB")
+            st.image(image, caption="Input image")
+
             mask = segment_image(image)
-            st.image(mask, caption='Segmentation map')
+            st.image(mask, caption="Segmentation map")
         else:
-            st.warning('Please enter an image URL to continue')
+            st.warning("Please enter an image URL to continue")
             st.stop()
