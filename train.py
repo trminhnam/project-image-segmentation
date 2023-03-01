@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import albumentations as A
 import cv2
@@ -7,6 +8,7 @@ import torch.optim as optim
 import yaml
 from albumentations.pytorch import ToTensorV2
 from tqdm.auto import tqdm
+from matplotlib import pyplot as plt
 
 from src.dataset import SegmentationDataset
 from src.model import UNet
@@ -87,6 +89,10 @@ if __name__ == "__main__":
     )
 
     # train
+    train_losses = []
+    val_losses = []
+    val_accuracies = []
+    val_dice_scores = []
     for epoch in range(config["epochs"]):
         print(f"Epoch: {epoch+1}/{config['epochs']}")
         train_loss = train_fn(train_loader, model, optimizer, criterion, scaler, device)
@@ -96,6 +102,10 @@ if __name__ == "__main__":
         print(
             f"Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Test accuracy: {accuracy:.4f}, Test dice_score: {dice_score:.4f}"
         )
+        train_losses.append(train_loss)
+        val_losses.append(test_loss)
+        val_accuracies.append(accuracy)
+        val_dice_scores.append(dice_score)
 
         if (
             config.get("save_every", -1) != -1
@@ -108,3 +118,35 @@ if __name__ == "__main__":
             )
 
         print()
+
+    save_checkpoint(
+        model.state_dict(),
+        checkpoint_path=config["model_save_path"].split(".")[0] + "_final.pth",
+    )
+
+    # plot losses
+    plt.figure(figsize=(10, 5), dpi=100)
+    plt.plot(train_losses, label="train")
+    plt.plot(val_losses, label="val")
+    plt.legend()
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.title("Losses")
+    plt.tight_layout()
+    plt.savefig(os.path.splitext(config["model_save_path"])[0] + "_losses.png")
+
+    # plot accuracies on the left an dice scores on the right
+    # new figure
+    plt.figure(figsize=(10, 5), dpi=100)
+    plt.subplot(1, 2, 1)
+    plt.plot(val_accuracies)
+    plt.xlabel("Epochs")
+    plt.ylabel("Accuracy")
+    plt.title("Val Accuracy")
+    plt.subplot(1, 2, 2)
+    plt.plot(val_dice_scores)
+    plt.xlabel("Epochs")
+    plt.ylabel("Dice Score")
+    plt.title("Val Dice Scores")
+    plt.tight_layout()
+    plt.savefig(os.path.splitext(config["model_save_path"])[0] + "_metrics.png")

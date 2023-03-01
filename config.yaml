@@ -6,7 +6,7 @@ num_workers: 2
 image_height: 160
 image_width: 240
 pin_memory: True
-load_model: True
+load_model: False
 save_every: 1
 
 train_image_dir: "data/images"
