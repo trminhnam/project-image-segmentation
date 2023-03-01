@@ -7,21 +7,10 @@ from PIL import Image
 
 from src.dataset import SegmentationDataset
 from src.utils import mask_visualization
+from src.augmentation import get_train_transforms, get_val_transforms
 
-MASK_BG = 1
-train_tfm = A.Compose(
-    [
-        A.HorizontalFlip(p=0.5),
-        A.VerticalFlip(p=0.5),
-        A.RandomScale(),
-        A.Rotate(border_mode=cv2.BORDER_CONSTANT, mask_value=MASK_BG),
-        A.RandomBrightnessContrast(p=0.2),
-        A.SmallestMaxSize(224),
-        A.RandomCrop(224, 224),
-        A.Normalize(),
-        ToTensorV2(),
-    ]
-)
+MASK_BG = 2 - 1
+train_tfm = get_train_transforms(mask_bg=MASK_BG)
 
 dataset = SegmentationDataset(
     image_dir=r"data\images",

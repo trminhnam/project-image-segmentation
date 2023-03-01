@@ -7,7 +7,6 @@ import torch.nn as nn
 import torch.optim as optim
 import yaml
 from albumentations.pytorch import ToTensorV2
-from tqdm.auto import tqdm
 from matplotlib import pyplot as plt
 
 from src.dataset import SegmentationDataset
@@ -19,6 +18,7 @@ from src.utils import (
     train_fn,
     train_test_split_dataset,
 )
+from src.augmentation import get_train_transforms, get_val_transforms
 
 config = {}
 with open("config.yaml", "r") as f:
@@ -26,28 +26,9 @@ with open("config.yaml", "r") as f:
 os.makedirs(os.path.dirname(config["model_save_path"]), exist_ok=True)
 
 if __name__ == "__main__":
-    MASK_BG = 2 - 1
-    train_tfm = A.Compose(
-        [
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.5),
-            A.RandomScale(),
-            A.Rotate(border_mode=cv2.BORDER_CONSTANT, mask_value=MASK_BG),
-            A.RandomBrightnessContrast(p=0.2),
-            A.SmallestMaxSize(224),
-            A.RandomCrop(224, 224),
-            A.Normalize(),
-            ToTensorV2(),
-        ]
-    )
-    val_tfm = A.Compose(
-        [
-            A.SmallestMaxSize(224),
-            A.CenterCrop(224, 224),
-            A.Normalize(),
-            ToTensorV2(),
-        ]
-    )
+    # load transforms
+    train_tfm = get_train_transforms(mask_bg=config.get("mask_bg", 1))
+    val_tfm = get_val_transforms()
 
     # load model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
