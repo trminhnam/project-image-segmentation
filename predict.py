@@ -50,6 +50,12 @@ if __name__ == "__main__":
     load_checkpoint(config["model_load_path"], model)
     model = model.to(device)
 
-    image = np.array(Image.open("./sample_images/cat.jpg"))
+    image_path = "./sample_images/cat.jpg"
+    image = np.array(Image.open(image_path))
     mask = predict(model, image, device)
-    visualize(image, mask, num_classes=config.get("num_classes", 3), alpha=0.5)
+    result = visualize(image, mask, num_classes=config.get("num_classes", 3), alpha=0.5)
+    
+    save_dir = "results"
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    Image.fromarray(result.astype("uint8")).save(os.path.join(save_dir, os.path.basename(image_path)))
