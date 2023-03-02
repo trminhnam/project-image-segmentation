@@ -1,13 +1,15 @@
-import torch
-import streamlit as st
-import requests
 from io import BytesIO
+
 import numpy as np
+import requests
+import streamlit as st
+import torch
+import yaml
 from PIL import Image
+
 from predict import predict, visualize
 from src.model import UNet
 from src.utils import load_checkpoint
-import yaml
 
 config = {}
 with open("config.yaml", "r") as f:

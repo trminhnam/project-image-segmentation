@@ -5,9 +5,9 @@ from albumentations.pytorch import ToTensorV2
 from matplotlib import pyplot as plt
 from PIL import Image
 
+from src.augmentation import get_train_transforms, get_val_transforms
 from src.dataset import SegmentationDataset
 from src.utils import mask_visualization
-from src.augmentation import get_train_transforms, get_val_transforms
 
 MASK_BG = 2 - 1
 train_tfm = get_train_transforms(mask_bg=MASK_BG)

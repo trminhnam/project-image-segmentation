@@ -29,6 +29,7 @@ Some examples of the dataset with segmentation masks are shown below.
 ## Folder Structure
 
 ```
+./
 ├── data/
 │   ├── annotations         # contains the ground truth segmentation masks
 │   └── images              # contains the images

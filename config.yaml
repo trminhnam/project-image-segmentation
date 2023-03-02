@@ -1,6 +1,6 @@
 num_classes: 3
 lr: 0.001
-batch_size: 16
+batch_size: 8
 epochs: 5
 num_workers: 2
 image_height: 160
@@ -8,6 +8,8 @@ image_width: 240
 pin_memory: True
 load_model: False
 save_every: 1
+
+activation: "gelu"
 
 train_image_dir: "data/images"
 train_mask_dir: "data/annotations/trimaps"
