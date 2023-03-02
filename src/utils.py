@@ -1,3 +1,4 @@
+import wandb
 import os
 import cv2
 import numpy as np
@@ -241,3 +242,23 @@ def plot_metrics(values, labels, xlabel, ylabel, title, save_path=None):
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path)
+
+
+def wandb_init(project_name, config):
+    wandb.init(project=project_name, config=config)
+
+
+def wandb_log(metrics, epoch):
+    if wandb.run is not None:
+        wandb.log(metrics, step=epoch)
+
+
+def wandb_save(path_or_dir):
+    import shutil
+
+    if wandb.run is not None:
+        if os.path.isdir(path_or_dir):
+            # shutil.copy("C://path/to/file.h5", os.path.join(wandb.run.dir, "file.h5"))
+            wandb.save(os.path.join(path_or_dir, "*"))
+        else:
+            wandb.save(path_or_dir, base_path=os.path.dirname(path_or_dir))
