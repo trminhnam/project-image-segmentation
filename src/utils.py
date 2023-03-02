@@ -227,3 +227,17 @@ def evaluate_fn(val_loader, model, criterion, device):
     acc = np.mean(accuracies)
     dice_score = np.mean(dice_scores)
     return loss, acc, dice_score
+
+
+def plot_metrics(values, labels, xlabel, ylabel, title, save_path=None):
+    # plot losses
+    plt.figure(figsize=(10, 5), dpi=100)
+    for value, label in zip(values, labels):
+        plt.plot(value, label=label)
+    plt.legend()
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path)

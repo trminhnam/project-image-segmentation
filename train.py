@@ -1,7 +1,8 @@
-import numpy as np
 import os
+
 import albumentations as A
 import cv2
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -9,16 +10,17 @@ import yaml
 from albumentations.pytorch import ToTensorV2
 from matplotlib import pyplot as plt
 
+from src.augmentation import get_train_transforms, get_val_transforms
 from src.dataset import SegmentationDataset
 from src.model import UNet
 from src.utils import (
     evaluate_fn,
     load_checkpoint,
+    plot_metrics,
     save_checkpoint,
     train_fn,
     train_test_split_dataset,
 )
-from src.augmentation import get_train_transforms, get_val_transforms
 
 config = {}
 with open("config.yaml", "r") as f:
@@ -32,7 +34,9 @@ if __name__ == "__main__":
 
     # load model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = UNet(in_channels=3, out_channels=3)
+    model = UNet(
+        in_channels=3, out_channels=3, activation=config.get("activation", "relu")
+    )
     if config["load_model"]:
         load_checkpoint(config["model_load_path"], model)
     model.to(device)
@@ -105,29 +109,29 @@ if __name__ == "__main__":
         checkpoint_path=config["model_save_path"].split(".")[0] + "_final.pth",
     )
 
-    # plot losses
-    plt.figure(figsize=(10, 5), dpi=100)
-    plt.plot(train_losses, label="train")
-    plt.plot(val_losses, label="val")
-    plt.legend()
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.title("Losses")
-    plt.tight_layout()
-    plt.savefig(os.path.splitext(config["model_save_path"])[0] + "_losses.png")
+    plot_metrics(
+        [train_losses, val_losses],
+        ["train", "val"],
+        "Epochs",
+        "Loss",
+        "Train and Val Losses",
+        os.path.splitext(config["model_save_path"])[0] + "_losses.png",
+    )
 
-    # plot accuracies on the left an dice scores on the right
-    # new figure
-    plt.figure(figsize=(10, 5), dpi=100)
-    plt.subplot(1, 2, 1)
-    plt.plot(val_accuracies)
-    plt.xlabel("Epochs")
-    plt.ylabel("Accuracy")
-    plt.title("Val Accuracy")
-    plt.subplot(1, 2, 2)
-    plt.plot(val_dice_scores)
-    plt.xlabel("Epochs")
-    plt.ylabel("Dice Score")
-    plt.title("Val Dice Scores")
-    plt.tight_layout()
-    plt.savefig(os.path.splitext(config["model_save_path"])[0] + "_metrics.png")
+    plot_metrics(
+        [val_accuracies],
+        ["val"],
+        "Epochs",
+        "Accuracy",
+        "Val Accuracy",
+        os.path.splitext(config["model_save_path"])[0] + "_accuracy.png",
+    )
+
+    plot_metrics(
+        [val_dice_scores],
+        ["val"],
+        "Epochs",
+        "Dice Score",
+        "Val Dice Scores",
+        os.path.splitext(config["model_save_path"])[0] + "_dice_score.png",
+    )
