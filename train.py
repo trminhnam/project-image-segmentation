@@ -1,6 +1,5 @@
 import os
 
-import wandb
 import albumentations as A
 import cv2
 import numpy as np
@@ -11,16 +10,17 @@ import yaml
 from albumentations.pytorch import ToTensorV2
 from matplotlib import pyplot as plt
 
+import wandb
 from src.augmentation import get_train_transforms, get_val_transforms
 from src.dataset import SegmentationDataset
 from src.model import UNet
 from src.utils import (
     evaluate_fn,
+    get_data_loader,
     load_checkpoint,
     plot_metrics,
     save_checkpoint,
     train_fn,
-    train_test_split_dataset,
     wandb_init,
     wandb_log,
     wandb_save,
@@ -58,31 +58,7 @@ if __name__ == "__main__":
     scaler = torch.cuda.amp.GradScaler()
 
     # load dataset
-    dataset = SegmentationDataset(
-        image_dir=config["train_image_dir"],
-        mask_dir=config["train_mask_dir"],
-        transform=train_tfm,
-    )
-
-    train_test_dataset = train_test_split_dataset(dataset, val_split=0.25)
-    train_dataset = train_test_dataset["train"]
-    test_dataset = train_test_dataset["test"]
-
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=config["batch_size"],
-        shuffle=True,
-        num_workers=config.get("num_workers", 1),
-        pin_memory=config.get("pin_memory", False),
-    )
-
-    test_loader = torch.utils.data.DataLoader(
-        test_dataset,
-        batch_size=config["batch_size"],
-        shuffle=False,
-        num_workers=config.get("num_workers", 1),
-        pin_memory=config.get("pin_memory", False),
-    )
+    train_loader, test_loader = get_data_loader(config)
 
     # train
     train_losses = []

@@ -1,5 +1,5 @@
-import wandb
 import os
+
 import cv2
 import numpy as np
 import torch
@@ -7,6 +7,11 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Subset
 from tqdm.auto import tqdm
+
+import wandb
+
+from .augmentation import get_train_transforms, get_val_transforms
+from .dataset import SegmentationDataset
 
 
 def mask_visualization(img, mask, alpha=0.5):
@@ -257,7 +262,6 @@ def wandb_save(path_or_dir):
     # import shutil
 
     try:
-
         if wandb.run is not None:
             if os.path.isdir(path_or_dir):
                 # shutil.copy("C://path/to/file.h5", os.path.join(wandb.run.dir, "file.h5"))
@@ -266,3 +270,38 @@ def wandb_save(path_or_dir):
                 wandb.save(path_or_dir, base_path=os.path.dirname(path_or_dir))
     except Exception as e:
         print(e)
+
+
+def get_data_loader(config):
+    train_tfm = get_train_transforms()
+    test_tfm = get_val_transforms()
+
+    dataset = SegmentationDataset(
+        image_dir=config["train_image_dir"],
+        mask_dir=config["train_mask_dir"],
+        transform=train_tfm,
+    )
+
+    train_test_dataset = train_test_split_dataset(dataset, val_split=0.25)
+    train_dataset = train_test_dataset["train"]
+    test_dataset = train_test_dataset["test"]
+
+    test_dataset.transform = test_tfm
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=config["batch_size"],
+        shuffle=True,
+        num_workers=config.get("num_workers", 1),
+        pin_memory=config.get("pin_memory", False),
+    )
+
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=config["batch_size"],
+        shuffle=False,
+        num_workers=config.get("num_workers", 1),
+        pin_memory=config.get("pin_memory", False),
+    )
+
+    return train_loader, test_loader
