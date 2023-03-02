@@ -48,7 +48,7 @@ if __name__ == "__main__":
     model = UNet(
         in_channels=3, out_channels=3, activation=config.get("activation", "relu")
     )
-    if config.get("model_load_path", None):
+    if config.get("model_load_path", None) and config.get("load_model", False):
         load_checkpoint(config["model_load_path"], model)
     model.to(device)
 
