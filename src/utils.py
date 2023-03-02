@@ -254,11 +254,15 @@ def wandb_log(metrics, epoch):
 
 
 def wandb_save(path_or_dir):
-    import shutil
+    # import shutil
 
-    if wandb.run is not None:
-        if os.path.isdir(path_or_dir):
-            # shutil.copy("C://path/to/file.h5", os.path.join(wandb.run.dir, "file.h5"))
-            wandb.save(os.path.join(path_or_dir, "*"))
-        else:
-            wandb.save(path_or_dir, base_path=os.path.dirname(path_or_dir))
+    try:
+
+        if wandb.run is not None:
+            if os.path.isdir(path_or_dir):
+                # shutil.copy("C://path/to/file.h5", os.path.join(wandb.run.dir, "file.h5"))
+                wandb.save(os.path.join(path_or_dir, "*"))
+            else:
+                wandb.save(path_or_dir, base_path=os.path.dirname(path_or_dir))
+    except Exception as e:
+        print(e)
