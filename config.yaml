@@ -7,7 +7,7 @@ image_height: 160
 image_width: 240
 pin_memory: True
 load_model: False
-save_every: 1
+model_load_path: "model/model_5.pth"
 
 activation: "gelu"
 
@@ -15,5 +15,9 @@ train_image_dir: "data/images"
 train_mask_dir: "data/annotations/trimaps"
 mask_bg: 1 # 2 - 1
 
-model_load_path: "model/model_5.pth"
-model_save_path: "model/model.pth"
+save_dir: "output"
+save_every: 5
+model_save_name: "model.pth"
+
+wandb: True
+wandb_project: "unet-oxford-iiit-pet-dataset"
