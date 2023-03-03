@@ -71,7 +71,7 @@ def get_increment_path(path, increment=1):
     return new_path
 
 
-def save_masks_and_preds_to_img(masks, preds, folder="saved_images/"):
+def save_masks_and_preds_to_img(masks, preds, folder="output/"):
     """Save batch of images, masks, and predictions to disk.
 
     Args:
@@ -167,10 +167,11 @@ def calculate_dice_score(outputs, labels, num_classes=3):
     return dice_score / num_classes
 
 
-def train_fn(train_loader, model, optimizer, criterion, scaler, device):
-    pbar = tqdm(train_loader)
+def train_fn(train_loader, model, optimizer, criterion, scaler, scheduler, device):
     losses = []
+    print(f"Learing rate: {scheduler.get_last_lr()[0]:.4e}")
 
+    pbar = tqdm(train_loader)
     for batch_idx, (image, target) in enumerate(pbar):
         image = image.to(device)
         target = target.to(device).long()
@@ -183,6 +184,8 @@ def train_fn(train_loader, model, optimizer, criterion, scaler, device):
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
+        if scheduler is not None:
+            scheduler.step()
 
         pbar.set_description(f"Train | loss: {loss.item():.4f}")
         losses.append(loss.item())

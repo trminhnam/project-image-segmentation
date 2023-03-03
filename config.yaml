@@ -9,6 +9,9 @@ pin_memory: True
 load_model: False
 model_load_path: "model/model_5.pth"
 
+scheduler: "lambda"
+scheduler_alpha: 0.99
+
 activation: "gelu"
 
 train_image_dir: "data/images"
@@ -18,6 +21,5 @@ mask_bg: 1 # 2 - 1
 save_dir: "output"
 save_every: 5
 model_save_name: "model.pth"
-
-wandb: True
-wandb_project: "unet-oxford-iiit-pet-dataset"
+# wandb: True
+# wandb_project: "unet-oxford-iiit-pet-dataset"

@@ -10,9 +10,7 @@ import yaml
 from albumentations.pytorch import ToTensorV2
 from matplotlib import pyplot as plt
 
-import wandb
 from src.augmentation import get_train_transforms, get_val_transforms
-from src.dataset import SegmentationDataset
 from src.model import UNet
 from src.utils import (
     evaluate_fn,
@@ -25,6 +23,7 @@ from src.utils import (
     wandb_log,
     wandb_save,
 )
+from src.scheduler import apply_lambda_scheduler
 
 config = {}
 with open("config.yaml", "r") as f:
@@ -53,9 +52,20 @@ if __name__ == "__main__":
     model.to(device)
 
     # load optimizer and loss
-    optimizer = optim.Adam(model.parameters(), lr=config["lr"])
     criterion = nn.CrossEntropyLoss()
     scaler = torch.cuda.amp.GradScaler()
+    optimizer = optim.Adam(model.parameters(), lr=config["lr"])
+    if config.get("scheduler", None):
+        if config["scheduler"] == "lambda":
+            scheduler = apply_lambda_scheduler(
+                optimizer, config.get("scheduler_alpha", 0.99)
+            )
+        else:
+            raise NotImplementedError(
+                f"Scheduler {config['scheduler']} not implemented"
+            )
+    else:
+        scheduler = None
 
     # load dataset
     train_loader, test_loader = get_data_loader(config)
@@ -67,7 +77,9 @@ if __name__ == "__main__":
     val_dice_scores = []
     for epoch in range(config["epochs"]):
         print(f"Epoch: {epoch+1}/{config['epochs']}")
-        train_loss = train_fn(train_loader, model, optimizer, criterion, scaler, device)
+        train_loss = train_fn(
+            train_loader, model, optimizer, criterion, scaler, scheduler, device
+        )
         test_loss, accuracy, dice_score = evaluate_fn(
             test_loader, model, criterion, device
         )
