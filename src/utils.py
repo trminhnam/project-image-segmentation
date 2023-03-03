@@ -274,8 +274,10 @@ def wandb_save(path_or_dir):
 
 
 def get_data_loader(config):
-    train_tfm = get_train_transforms()
-    test_tfm = get_val_transforms()
+    img_height = config.get("img_height", 224)
+    img_width = config.get("img_width", 224)
+    train_tfm = get_train_transforms(img_height, img_width)
+    test_tfm = get_val_transforms(img_height, img_width)
 
     dataset = SegmentationDataset(
         image_dir=config["train_image_dir"],

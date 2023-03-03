@@ -38,10 +38,6 @@ if __name__ == "__main__":
     save_dir = config.get("save_dir", "output")
     os.makedirs(save_dir, exist_ok=True)
 
-    # load transforms
-    train_tfm = get_train_transforms(mask_bg=config.get("mask_bg", 1))
-    val_tfm = get_val_transforms()
-
     # load model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = UNet(

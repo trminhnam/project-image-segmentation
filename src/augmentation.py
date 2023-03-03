@@ -4,7 +4,7 @@ import cv2
 from albumentations.pytorch import ToTensorV2
 
 
-def get_train_transforms(mask_bg=1):
+def get_train_transforms(img_height=224, img_width=224, mask_bg=1):
     # MASK_BG = 2 - 1
     train_tfm = A.Compose(
         [
@@ -26,8 +26,8 @@ def get_train_transforms(mask_bg=1):
             # A.RandomFog(p=0.2),
             # A.RandomSunFlare(p=0.2),
             # A.RandomSunFlare(p=0.2),
-            A.SmallestMaxSize(224),
-            A.RandomCrop(224, 224),
+            A.SmallestMaxSize(img_height),
+            A.RandomCrop(img_height, img_width),
             A.Normalize(),
             ToTensorV2(),
         ]
@@ -35,11 +35,11 @@ def get_train_transforms(mask_bg=1):
     return train_tfm
 
 
-def get_val_transforms():
+def get_val_transforms(img_height=224, img_width=224):
     val_tfm = A.Compose(
         [
-            A.SmallestMaxSize(224),
-            A.CenterCrop(224, 224),
+            A.SmallestMaxSize(img_height),
+            A.CenterCrop(img_height, img_width),
             A.Normalize(),
             ToTensorV2(),
         ]
