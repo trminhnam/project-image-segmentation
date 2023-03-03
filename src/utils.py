@@ -167,9 +167,9 @@ def calculate_dice_score(outputs, labels, num_classes=3):
     return dice_score / num_classes
 
 
-def train_fn(train_loader, model, optimizer, criterion, scaler, scheduler, device):
+def train_fn(train_loader, model, optimizer, criterion, scaler, device):
     losses = []
-    print(f"Learing rate: {scheduler.get_last_lr()[0]:.4e}")
+    print(f"Learing rate: {optimizer.param_groups[0]['lr']}")
 
     pbar = tqdm(train_loader)
     for batch_idx, (image, target) in enumerate(pbar):
@@ -184,8 +184,6 @@ def train_fn(train_loader, model, optimizer, criterion, scaler, scheduler, devic
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
-        if scheduler is not None:
-            scheduler.step()
 
         pbar.set_description(f"Train | loss: {loss.item():.4f}")
         losses.append(loss.item())

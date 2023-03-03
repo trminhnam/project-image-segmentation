@@ -77,16 +77,21 @@ if __name__ == "__main__":
     val_dice_scores = []
     for epoch in range(config["epochs"]):
         print(f"Epoch: {epoch+1}/{config['epochs']}")
-        train_loss = train_fn(
-            train_loader, model, optimizer, criterion, scaler, scheduler, device
-        )
+
+        # training
+        train_loss = train_fn(train_loader, model, optimizer, criterion, scaler, device)
+        if scheduler:
+            scheduler.step()
+
+        # evaluation
         test_loss, accuracy, dice_score = evaluate_fn(
             test_loader, model, criterion, device
         )
+
+        # logging
         print(
             f"Train loss: {train_loss:.4f}, Test loss: {test_loss:.4f}, Test accuracy: {accuracy:.4f}, Test dice_score: {dice_score:.4f}"
         )
-
         train_losses.append(train_loss)
         val_losses.append(test_loss)
         val_accuracies.append(accuracy)
@@ -101,6 +106,7 @@ if __name__ == "__main__":
             epoch,
         )
 
+        # save model
         if (
             config.get("save_every", -1) != -1
             and (epoch + 1) % config["save_every"] == 0
